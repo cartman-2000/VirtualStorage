@@ -76,10 +76,13 @@ namespace VirtualStorage
                     UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("container_name_not_found"), Color.red);
                     return;
                 }
-                if (container[2].ToString().ToLower() == defaultContainer.ToLower())
+                if (!string.IsNullOrEmpty(defaultContainer))
                 {
-                    UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("set_already_set"), Color.red);
-                    return;
+                    if (container[2].ToString().ToLower() == defaultContainer.ToLower())
+                    {
+                        UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("set_already_set"), Color.red);
+                        return;
+                    }
                 }
                 VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, container[2].ToString());
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("container_set", container[2].ToString()), Color.cyan);

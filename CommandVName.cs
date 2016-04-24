@@ -53,6 +53,11 @@ namespace VirtualStorage
             UnturnedPlayer player = (UnturnedPlayer)caller;
 
             string newName = command[0].Trim().Truncate(60);
+            if (newName == string.Empty)
+            {
+                UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("buy_no_name"), Color.red);
+                return;
+            }
             Dictionary<string, object[]> containers = VirtualStorage.Database.GetContainerList(player.CSteamID);
             object[] exists = containers.Values.FirstOrDefault(contents => contents[2].ToString().ToLower() == newName.ToLower());
             string defaultContainer = VirtualStorage.Database.GetDefaultContainer(player.CSteamID);

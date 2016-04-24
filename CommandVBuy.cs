@@ -69,6 +69,11 @@ namespace VirtualStorage
                     return;
                 }
                 string cName = command[1].Trim().Truncate(60);
+                if (cName == string.Empty)
+                {
+                    UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("buy_no_name"), Color.red);
+                    return;
+                }
                 if (containers.Values.FirstOrDefault(contents => contents[2].ToString().ToLower() == cName.ToLower()) != null)
                 {
                     UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("matches_owned"), Color.red);

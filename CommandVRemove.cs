@@ -96,9 +96,10 @@ namespace VirtualStorage
                     return;
                 }
             }
-            if (VirtualStorage.Database.GetDefaultContainer(player.CSteamID).ToLower() == command[0].Trim().ToLower())
+            if (!string.IsNullOrEmpty(defaultContainer))
             {
-                VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, string.Empty);
+                if (defaultContainer.ToLower() == command[0].Trim().ToLower())
+                    VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, string.Empty);
             }
             VirtualStorage.Database.RemoveContainerFromDB(player.CSteamID, container[2].ToString());
             pComponent.cData = null;
