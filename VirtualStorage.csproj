@@ -32,35 +32,35 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\Rocket_Ref\Assembly-CSharp.dll</HintPath>
+      <HintPath>BaseLib\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>..\Rocket_Ref\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>BaseLib\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="I18N">
-      <HintPath>..\Rocket_Ref\I18N.dll</HintPath>
+      <HintPath>MySQLLib\I18N.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="I18N.West">
-      <HintPath>..\Rocket_Ref\I18N.West.dll</HintPath>
+      <HintPath>MySQLLib\I18N.West.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MySql.Data">
-      <HintPath>..\Rocket_Ref\MySql.Data.dll</HintPath>
+      <HintPath>MySQLLib\MySql.Data.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Rocket.API">
-      <HintPath>..\Rocket_Ref\Rocket.API.dll</HintPath>
+      <HintPath>BaseLib\Rocket.API.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Rocket.Core">
-      <HintPath>..\Rocket_Ref\Rocket.Core.dll</HintPath>
+      <HintPath>BaseLib\Rocket.Core.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Rocket.Unturned">
-      <HintPath>..\Rocket_Ref\Rocket.Unturned.dll</HintPath>
+      <HintPath>BaseLib\Rocket.Unturned.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
@@ -70,11 +70,11 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Uconomy">
-      <HintPath>..\Rocket_Ref\Uconomy.dll</HintPath>
+      <HintPath>UconomyLib\Uconomy.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\Rocket_Ref\UnityEngine.dll</HintPath>
+      <HintPath>BaseLib\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
@@ -92,6 +92,21 @@
     <Compile Include="VirtualStorage.cs" />
     <Compile Include="VirtualStorageConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BaseLib\Assembly-CSharp-firstpass.dll" />
+    <Content Include="BaseLib\Assembly-CSharp.dll" />
+    <Content Include="BaseLib\Rocket.API.dll" />
+    <Content Include="BaseLib\Rocket.Core.dll" />
+    <Content Include="BaseLib\Rocket.Unturned.dll" />
+    <Content Include="BaseLib\UnityEngine.dll" />
+    <Content Include="MySQLLib\I18N.dll" />
+    <Content Include="MySQLLib\I18N.West.dll" />
+    <Content Include="MySQLLib\MySql.Data.dll" />
+    <Content Include="MySQLLib\System.Data.dll" />
+    <Content Include="MySQLLib\System.Management.dll" />
+    <Content Include="MySQLLib\System.Transactions.dll" />
+    <Content Include="UconomyLib\Uconomy.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
