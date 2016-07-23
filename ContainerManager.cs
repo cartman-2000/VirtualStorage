@@ -68,7 +68,7 @@ namespace VirtualStorage
                         return false;
                     }
                 }
-                Transform = BarricadeTool.getBarricade(player.Player.transform, false, Player.Position, new Quaternion(), AssetID, State);
+                Transform = BarricadeTool.getBarricade(player.Player.transform, 100, false, Player.Position, new Quaternion(), AssetID, State);
                 Container = Transform.GetComponent<InteractableStorage>();
                 return true;
             }
