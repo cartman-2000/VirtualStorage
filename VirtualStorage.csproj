@@ -84,6 +84,7 @@
     <Compile Include="CommandVOpen.cs" />
     <Compile Include="CommandVBuy.cs" />
     <Compile Include="CommandVSet.cs" />
+    <Compile Include="CommandVTransfer.cs" />
     <Compile Include="Container.cs" />
     <Compile Include="ContainerManager.cs" />
     <Compile Include="PVirtStorage.cs" />

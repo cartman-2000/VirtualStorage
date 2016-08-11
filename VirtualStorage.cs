@@ -83,11 +83,12 @@ namespace VirtualStorage
                     { "vname_help", CommandVName.syntax + " - " + CommandVName.help },
                     { "vremove_help", CommandVRemove.syntax + " - " + CommandVRemove.help },
                     { "vset_help", CommandVSet.syntax + " - " + CommandVSet.help },
+                    { "vtransfer_help", CommandVTransfer.syntax + " - " + CommandVTransfer.help },
                     { "opening_container", "Opening container: {0}." },
                     { "removing_container", "Container: {0} has been removed, {1} items have been dropped." },
                     { "number_to_buy", "There are {0} containers that you can buy:" },
                     { "buy_list_entry", "Listed Name: {0}, Listed Price: {1}." },
-                    { "buy_no_name", "You need so set a name to the container." },
+                    { "buy_no_name", "You need a name for the container." },
                     { "buy_not_in_list", "No Listed containers found by that name." },
                     { "buy_max_reached", "Max allowed containers reached, you need to remove one to buy another. Max allowed per player: {0}" },
                     { "buy_charged", "You have bought the container: {0}, with name: {1}, for {2} {3}s." },
@@ -105,7 +106,12 @@ namespace VirtualStorage
                     { "set_number_owned", "You have {0} container(s):" },
                     { "set_owned_entry", "{0}Set Name: {1}, List Name: {2}, ItemCount: {3}" },
                     { "set_already_set", "Error: Your default container is already set to this." },
-                    { "container_set", "Your container has been set to: {0}" }
+                    { "container_set", "Your container has been set to: {0}" },
+                    { "no_player_name", "The playername entered isn't a valid one." },
+                    { "target_has_container", "The target player has a container by this name already, you will need to change the name to transfer it." },
+                    { "target_max_reached", "The target player has reached the max allowed containers. Max allowed per player: {0}" },
+                    { "sent_to_player", "You have sent container: {0} to player: {1}." },
+                    { "received_from_player", "You have received container: {0} from player: {1}." }
                 };
             }
         }

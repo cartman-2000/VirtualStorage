@@ -15,7 +15,7 @@ namespace VirtualStorage
         internal static readonly string help = "Set's the active container.";
         public List<string> Aliases
         {
-            get { return new List<string>(); }
+            get { return new List<string>() { "vs" }; }
         }
 
         public AllowedCaller AllowedCaller

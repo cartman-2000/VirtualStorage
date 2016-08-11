@@ -440,5 +440,31 @@ namespace VirtualStorage
                 }
             }
         }
+
+        internal void TransferContainer(CSteamID oSteamID, CSteamID tSteamID, string cName, bool retry = false)
+        {
+            try
+            {
+                if (!Initialized)
+                {
+                    Logger.LogError("Error: Cant save player info, plugin hasn't initialized properly.");
+                    return;
+                }
+                MySqlCommand command = Connection.CreateCommand();
+                command.Parameters.AddWithValue("@osteamid", oSteamID);
+                command.Parameters.AddWithValue("@tsteamid" , tSteamID);
+                command.Parameters.AddWithValue("@cname", cName);
+                command.CommandText = "UPDATE `" + TableData + "` SET ContainerName = @cname, SteamID = @tsteamid WHERE SteamID = @osteamid AND ContainerName = @cname";
+                command.ExecuteNonQuery();
+            }
+            catch (MySqlException ex)
+            {
+                if (!retry)
+                {
+                    if (HandleException(ex))
+                        TransferContainer(oSteamID, tSteamID, cName, true);
+                }
+            }
+        }
     }
 }

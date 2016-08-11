@@ -15,7 +15,7 @@ namespace VirtualStorage
         internal static readonly string help = "Renames the container set to default, to a new name.";
         public List<string> Aliases
         {
-            get { return new List<string>(); }
+            get { return new List<string>() { "vn" }; }
         }
 
         public AllowedCaller AllowedCaller

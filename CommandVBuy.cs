@@ -15,7 +15,7 @@ namespace VirtualStorage
         internal static readonly string help = "Buys/Creates a Dynamic container.";
         public List<string> Aliases
         {
-            get { return new List<string>(); }
+            get { return new List<string>() { "vb" }; }
         }
 
         public AllowedCaller AllowedCaller
