@@ -10,7 +10,7 @@ namespace VirtualStorage
 {
     public class ContainerManager
     {
-        internal static readonly byte CurrentPluginVersion = 8;
+        internal static readonly byte CurrentPluginVersion = 9;
 
         internal Transform Transform { get; set; }
         internal InteractableStorage Container { get; set; }
@@ -39,13 +39,33 @@ namespace VirtualStorage
 
         private bool UpdateContainer()
         {
-            bool Updated = false;
             // here to perform State updates to the data so it'll load properly. Will also stop containers from loading if the container version isn't less than the CurrentPluginVersion set here, it's a protection measure so that container contents don't get corrupted with potentially mismatched packing and unpacking procedures.
             if (ContainerVersion < CurrentPluginVersion)
             {
-                // Placeholder
+                try
+                {
+                    BarricadeManager.version = ContainerVersion;
+                    Logger.Log("run update.");
+                    Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, false, Player.Position, new Quaternion(), AssetID, State);
+                    Container = Transform.GetComponent<InteractableStorage>();
+                    SaveState();
+                    ContainerVersion = BarricadeManager.SAVEDATA_VERSION;
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Error updating the container.");
+                    return false;
+                }
+                finally
+                {
+                    BarricadeManager.version = BarricadeManager.SAVEDATA_VERSION;
+                }
             }
-            return Updated;
+            else
+            {
+                return false;
+            }
         }
 
         internal bool SetContainer(ushort assetID, byte[] state, UnturnedPlayer player, string containerName, byte itemCount, byte containerVersion)
@@ -68,7 +88,7 @@ namespace VirtualStorage
                         return false;
                     }
                 }
-                Transform = BarricadeTool.getBarricade(player.Player.transform, 100, false, Player.Position, new Quaternion(), AssetID, State);
+                Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, false, Player.Position, new Quaternion(), AssetID, State);
                 Container = Transform.GetComponent<InteractableStorage>();
                 return true;
             }
@@ -112,19 +132,18 @@ namespace VirtualStorage
                     I.item.Durability,
                     I.item.Metadata
                 });
-                // Logger.Log("px: " + I.PositionX + ", py: " + I.PositionY + ", Rot: " + I.Rotation + ", ID: " + I.item.id + ", AMT: " + I.item.Amount + ", Dur: " + I.item.Durability + ", meta_len: " + I.item.Metadata.Length);
             }
             if (Container.isDisplay)
             {
                 SteamPacker.write(Container.displaySkin);
                 SteamPacker.write(Container.displayMythic);
+                SteamPacker.write(Container.rot_comp);
             }
             int Size = 0;
             byte[] tmp = SteamPacker.closeWrite(out Size);
             StateSize = Size;
             State = new byte[StateSize];
             Array.Copy(tmp, State, StateSize);
-            // Logger.Log(StateSize.ToString() + ":" + ItemCount.ToString());
         }
 
         internal void Break()
