@@ -1,20 +1,19 @@
-﻿using Rocket.Core.Logging;
-using Rocket.Unturned.Chat;
+﻿using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using System;
-using System.Linq;
 using UnityEngine;
 
 namespace VirtualStorage
 {
+    using Logger = Rocket.Core.Logging.Logger;
     public class ContainerManager
     {
-        internal static readonly byte CurrentPluginVersion = 9;
+        private static readonly byte CurrentPluginContainerVersion = 11;
 
-        internal Transform Transform { get; set; }
-        internal InteractableStorage Container { get; set; }
-        internal ItemBarricadeAsset ItemAsset { get; set; }
+        private Transform Transform { get; set; }
+        private InteractableStorage Container { get; set; }
+        private ItemBarricadeAsset ItemAsset { get; set; }
         internal UnturnedPlayer Player { get; set; }
 
         internal byte[] State { get; set; }
@@ -33,14 +32,14 @@ namespace VirtualStorage
             Container = null;
             WasOpen = false;
             ContainerName = string.Empty;
-            ContainerVersion = CurrentPluginVersion;
+            ContainerVersion = CurrentPluginContainerVersion;
             Player = player;
         }
 
         private bool UpdateContainer()
         {
             // here to perform State updates to the data so it'll load properly. Will also stop containers from loading if the container version isn't less than the CurrentPluginVersion set here, it's a protection measure so that container contents don't get corrupted with potentially mismatched packing and unpacking procedures.
-            if (ContainerVersion < CurrentPluginVersion)
+            if (ContainerVersion < CurrentPluginContainerVersion)
             {
                 try
                 {
@@ -113,31 +112,15 @@ namespace VirtualStorage
         {
             SteamPacker.openWrite(0);
             ItemCount = Container.items.getItemCount();
-            SteamPacker.write(new object[]
-            {
-                Player.CSteamID,
-                Player.SteamGroupID,
-                ItemCount
-            });
+            SteamPacker.write(Player.CSteamID, Player.SteamGroupID, ItemCount);
             for (byte i = 0; i < ItemCount; i++)
             {
                 ItemJar I = (ItemJar)Container.items.getItem(i);
-                SteamPacker.write(new object[]
-                {
-                    I.PositionX,
-                    I.PositionY,
-                    I.Rotation,
-                    I.item.id,
-                    I.item.Amount,
-                    I.item.Durability,
-                    I.item.Metadata
-                });
+                SteamPacker.write(I.PositionX, I.PositionY, I.Rotation, I.item.id, I.item.Amount, I.item.Durability, I.item.Metadata);
             }
             if (Container.isDisplay)
             {
-                SteamPacker.write(Container.displaySkin);
-                SteamPacker.write(Container.displayMythic);
-                SteamPacker.write(Container.rot_comp);
+                SteamPacker.write(Container.displaySkin, Container.displayMythic, Container.rot_comp);
             }
             int Size = 0;
             byte[] tmp = SteamPacker.closeWrite(out Size);

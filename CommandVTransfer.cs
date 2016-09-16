@@ -1,4 +1,5 @@
 ﻿using Rocket.API;
+using Rocket.API.Extensions;
 using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ namespace VirtualStorage
                 return;
             }
             UnturnedPlayer player = (UnturnedPlayer)caller;
-            string targetPlayerName = command[1].Trim();
+            string targetPlayerName = command.GetStringParameter(1);
             UnturnedPlayer targetPlayer;
             if (targetPlayerName != null)
             {
@@ -65,8 +66,8 @@ namespace VirtualStorage
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("no_player_name"));
                 return;
             }
-            string cName = command[0].Trim().Truncate(60);
-            if (cName == string.Empty)
+            string cName = command.GetStringParameter(0);
+            if (string.IsNullOrEmpty(cName))
             {
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("buy_no_name"), Color.red);
                 return;
