@@ -54,22 +54,6 @@ namespace VirtualStorage
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("no_default_set"), Color.red);
                 return;
             }
-            if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
-            {
-                cData = VirtualStorage.Containers[player.CSteamID];
-                if (VirtualStorage.Containers[player.CSteamID].ContainerName == DefaultContainer)
-                {
-                    cData = VirtualStorage.Containers[player.CSteamID];
-                    pComponent.cData = cData;
-                    cData.Open();
-                    return;
-                }
-            }
-            else
-            {
-                if (!VirtualStorage.Containers.ContainsKey(player.CSteamID))
-                    cData = new ContainerManager(player);
-            }
 
             object[] cInfo = VirtualStorage.Database.GetContainerData(player.CSteamID, DefaultContainer);
             if (cInfo == null)
@@ -77,9 +61,16 @@ namespace VirtualStorage
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("open_data_not_found"), Color.red);
                 return;
             }
-            if (!cData.SetContainer((ushort)cInfo[0], (byte[])cInfo[1], player, (string)cInfo[2], (byte)cInfo[3], (byte)cInfo[4]))
+            if (VirtualStorage.Containers.ContainsKey(player.CSteamID) && VirtualStorage.Containers[player.CSteamID].ContainerName == DefaultContainer)
+                cData = VirtualStorage.Containers[player.CSteamID];
+            else
             {
-                UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("open_invalid"), Color.red);
+                cData = new ContainerManager(player);
+                if (!cData.SetContainer((ushort)cInfo[0], (byte[])cInfo[1], player, (string)cInfo[2], (byte)cInfo[3], (byte)cInfo[4]))
+                {
+                    UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("open_invalid"), Color.red);
+                    return;
+                }
             }
             if (VirtualStorage.TryCharge(caller, VirtualStorage.Instance.Configuration.Instance.OpenChargeCost, "vs.overrideopencost"))
             {

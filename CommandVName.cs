@@ -75,8 +75,7 @@ namespace VirtualStorage
             VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, newName);
             if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
             {
-                ContainerManager cData = VirtualStorage.Containers[player.CSteamID];
-                cData.ContainerName = newName;
+                VirtualStorage.Containers[player.CSteamID].ContainerName = newName;
             }
             UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("name_set", newName), Color.cyan);
         }

@@ -4,9 +4,10 @@ using SDG.Unturned;
 using System;
 using UnityEngine;
 
+using Logger = Rocket.Core.Logging.Logger;
+
 namespace VirtualStorage
 {
-    using Logger = Rocket.Core.Logging.Logger;
     public class ContainerManager
     {
         private static readonly byte CurrentPluginContainerVersion = 11;

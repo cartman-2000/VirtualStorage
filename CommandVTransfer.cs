@@ -80,8 +80,7 @@ namespace VirtualStorage
                 return;
             }
             Dictionary<string, object[]> targetContainers = VirtualStorage.Database.GetContainerList(targetPlayer.CSteamID);
-            object[] targetExists = targetContainers.Values.FirstOrDefault(contents => contents[2].ToString().ToLower() == cName.ToLower());
-            if (targetExists != null)
+            if (targetContainers.Values.FirstOrDefault(contents => contents[2].ToString().ToLower() == cName.ToLower()) != null)
             {
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("target_has_container"));
                 return;
@@ -93,7 +92,7 @@ namespace VirtualStorage
             }
 
             string defaultContainer = VirtualStorage.Database.GetDefaultContainer(player.CSteamID);
-            if (!string.IsNullOrEmpty(defaultContainer) && containers.Values.FirstOrDefault(contents => contents[2].ToString().ToLower() == defaultContainer.ToLower()) != null)
+            if (!string.IsNullOrEmpty(defaultContainer) && defaultContainer.ToLower() == cName.ToLower())
             {
                 VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, string.Empty);
                 if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
