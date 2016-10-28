@@ -65,44 +65,33 @@ namespace VirtualStorage
 
 
             ContainerManager cData = null;
-            if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
+            // Load the container data, if it isn't already loaded.
+            if (VirtualStorage.Containers.ContainsKey(player.CSteamID) && VirtualStorage.Containers[player.CSteamID].ContainerName.ToLower() == container[2].ToString().Trim().ToLower())
             {
                 cData = VirtualStorage.Containers[player.CSteamID];
-                if (VirtualStorage.Containers[player.CSteamID].ContainerName.ToLower() == container[2].ToString().Trim().ToLower())
+                VirtualStorage.Containers.Remove(player.CSteamID);
+            }
+
+            if (cData == null)
+            {
+                object[] cObject = VirtualStorage.Database.GetContainerData(player.CSteamID, container[2].ToString());
+                cData = new ContainerManager(player);
+                if (!cData.SetContainer((ushort)cObject[0], (byte[])cObject[1], player, (string)cObject[2], (byte)cObject[3], (byte)cObject[4]))
                 {
-                    if (VirtualStorage.Database.GetDefaultContainer(player.CSteamID).ToLower() == command[0].Trim().ToLower())
+                    if (!cData.SetContainer(VirtualStorage.Instance.Configuration.Instance.FallbackAssetID, (byte[])cObject[1], player, (string)cObject[2], (byte)cObject[3], (byte)cObject[4]))
                     {
-                        VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, string.Empty);
+                        UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("open_invalid"), Color.red);
+                        return;
                     }
-                    VirtualStorage.Database.RemoveContainerFromDB(player.CSteamID, container[2].ToString());
-                    cData = VirtualStorage.Containers[player.CSteamID];
-                    cData.Break();
-                    pComponent.cData = null;
-                    VirtualStorage.Containers.Remove(player.CSteamID);
-                    return;
                 }
             }
-            else
-            {
-                if (!VirtualStorage.Containers.ContainsKey(player.CSteamID))
-                    cData = new ContainerManager(player);
-            }
-            object[] cobject = VirtualStorage.Database.GetContainerData(player.CSteamID, container[2].ToString());
-            if(!cData.SetContainer((ushort)cobject[0],(byte[])cobject[1], player, (string)cobject[2], (byte)cobject[3], (byte)cobject[4]))
-            {
-                if (!cData.SetContainer(VirtualStorage.Instance.Configuration.Instance.FallbackAssetID,(byte[])cobject[1], player, (string)cobject[2], (byte)cobject[3], (byte)cobject[4]))
-                {
-                    UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("open_invalid"), Color.red);
-                    return;
-                }
-            }
+
             if (!string.IsNullOrEmpty(defaultContainer))
             {
                 if (defaultContainer.ToLower() == command[0].Trim().ToLower())
                     VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, string.Empty);
             }
             VirtualStorage.Database.RemoveContainerFromDB(player.CSteamID, container[2].ToString());
-            pComponent.cData = null;
             cData.Break();
         }
     }
