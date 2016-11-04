@@ -102,7 +102,7 @@ namespace VirtualStorage
             Container.opener = Player.Player;
             Player.Inventory.isStoring = true;
             WasOpen = true;
-            Container.items.OnStateUpdated = new StateUpdated(SaveState);
+            Container.items.onStateUpdated = new StateUpdated(SaveState);
             Player.Inventory.storage = Container;
             Player.Inventory.updateItems(PlayerInventory.STORAGE, Container.items);
             Player.Inventory.sendStorage();
@@ -117,7 +117,7 @@ namespace VirtualStorage
             for (byte i = 0; i < ItemCount; i++)
             {
                 ItemJar I = (ItemJar)Container.items.getItem(i);
-                SteamPacker.write(I.PositionX, I.PositionY, I.Rotation, I.item.id, I.item.Amount, I.item.Durability, I.item.Metadata);
+                SteamPacker.write(I.x, I.y, I.rot, I.item.id, I.item.amount, I.item.durability, I.item.metadata);
             }
             if (Container.isDisplay)
             {
@@ -148,12 +148,12 @@ namespace VirtualStorage
         {
             if (Container.opener != null)
             {
-                if (Container.opener.Inventory.isStoring)
+                if (Container.opener.inventory.isStoring)
                 {
-                    Container.opener.Inventory.isStoring = false;
-                    Container.opener.Inventory.storage = null;
-                    Container.opener.Inventory.updateItems(PlayerInventory.STORAGE, null);
-                    Container.opener.Inventory.sendStorage();
+                    Container.opener.inventory.isStoring = false;
+                    Container.opener.inventory.storage = null;
+                    Container.opener.inventory.updateItems(PlayerInventory.STORAGE, null);
+                    Container.opener.inventory.sendStorage();
                 }
                 Container.opener = null;
             }
