@@ -18,7 +18,8 @@ namespace VirtualStorage
         private string Table;
         private string TableData;
         public static readonly uint DatabaseSchemaVersion = 1;
-        internal Dictionary<ushort, Container> ConfigContainers = new Dictionary<ushort, Container>();
+        internal static Dictionary<ushort, Container> ConfigContainers = new Dictionary<ushort, Container>();
+
 
         // Initialization section.
         internal DatabaseManager()
@@ -28,12 +29,22 @@ namespace VirtualStorage
             Table = VirtualStorage.Instance.Configuration.Instance.DatabaseTableName;
             TableData = Table + "_data";
             CheckSchema();
+        }
+
+        private void CheckAssets()
+        {
             foreach (Container row in VirtualStorage.Instance.Configuration.Instance.Containers)
             {
                 ItemBarricadeAsset ItemAsset = ((ItemBarricadeAsset)Assets.find(EAssetType.ITEM, row.AssetID));
-                if (ItemAsset == null || ItemAsset.build != EBuild.STORAGE)
+                //Logger.Log(ItemAsset.assetCategory.ToString());
+                if (ItemAsset == null)
                 {
-                    Logger.LogWarning("Invalid Asset ID in the config, skipping, AssetID: " + row.AssetID);
+                    Logger.LogWarning("Null Asset ID in the config, skipping, AssetID: " + row.AssetID);
+                    continue;
+                }
+                if (ItemAsset.build != EBuild.STORAGE)
+                {
+                    Logger.LogWarning("Invalid Asset Type in the config, skipping, AssetID: " + row.AssetID);
                     continue;
                 }
                 if (ConfigContainers.ContainsKey(row.AssetID))
@@ -53,7 +64,8 @@ namespace VirtualStorage
                 KeepAlive.Dispose();
             }
             Connection.Dispose();
-            ConfigContainers.Clear();
+            Assets.onAssetsRefreshed -= CheckAssets;
+            //ConfigContainers.Clear();
         }
 
         // Plugin/Database setup section.
@@ -122,6 +134,7 @@ namespace VirtualStorage
                     KeepAlive.Start();
                 }
                 Initialized = true;
+                Assets.onAssetsRefreshed += CheckAssets;
             }
             catch (MySqlException ex)
             {

@@ -55,8 +55,8 @@ namespace VirtualStorage
             Dictionary<string, object[]> containers = VirtualStorage.Database.GetContainerList(player.CSteamID);
             if (command[0].Trim().ToLower() == "list")
             {
-                UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("number_to_buy", VirtualStorage.Database.ConfigContainers.Count), Color.cyan);
-                foreach (KeyValuePair<ushort, Container> container in VirtualStorage.Database.ConfigContainers)
+                UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("number_to_buy", DatabaseManager.ConfigContainers.Count), Color.cyan);
+                foreach (KeyValuePair<ushort, Container> container in DatabaseManager.ConfigContainers)
                 {
                     UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("buy_list_entry", container.Value.ContainerName, container.Value.Price), Color.yellow);
                 }
@@ -79,7 +79,7 @@ namespace VirtualStorage
                     UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("matches_owned"), Color.red);
                     return;
                 }
-                Container cInfo = VirtualStorage.Database.ConfigContainers.Values.FirstOrDefault(content => content.ContainerName.ToLower() == command[0].Trim().ToLower());
+                Container cInfo = DatabaseManager.ConfigContainers.Values.FirstOrDefault(content => content.ContainerName.ToLower() == command[0].Trim().ToLower());
                 if (cInfo == null)
                 {
                     UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("buy_not_in_list"), Color.red);

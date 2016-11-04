@@ -5,11 +5,11 @@ namespace VirtualStorage
     public class Container
     {
         [XmlAttribute("AssetID")]
-        public ushort AssetID { get; private set; }
+        public ushort AssetID { get; set; }
         [XmlAttribute("Name")]
-        public string ContainerName { get; private set; }
+        public string ContainerName { get; set; }
         [XmlAttribute("Price")]
-        public decimal Price { get; private set; }
+        public decimal Price { get; set; }
         public Container() { }
         public Container(ushort assetID, string containerName, decimal price)
         {
