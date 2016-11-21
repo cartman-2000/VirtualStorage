@@ -65,7 +65,7 @@ namespace VirtualStorage
                 foreach (KeyValuePair<string, object[]> container in containers)
                 {
                     int count = (byte)container.Value[1];
-                    UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("set_owned_entry", defaultContainer == container.Key ? "-->" : "", container.Key, DatabaseManager.ConfigContainers.ContainsKey((ushort)container.Value[0]) ? DatabaseManager.ConfigContainers[(ushort)container.Value[0]].ContainerName : "-", (byte)container.Value[1]), Color.yellow);
+                    UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("set_owned_entry", defaultContainer == container.Key ? "-->" : "", container.Key, VirtualStorage.Database.ConfigContainers.ContainsKey((ushort)container.Value[0]) ? VirtualStorage.Database.ConfigContainers[(ushort)container.Value[0]].ContainerName : "-", (byte)container.Value[1]), Color.yellow);
                 }
             }
             else
