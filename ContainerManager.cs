@@ -46,7 +46,7 @@ namespace VirtualStorage
                 {
                     BarricadeManager.version = ContainerVersion;
                     Logger.Log("run update.");
-                    Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, false, Player.Position, new Quaternion(), AssetID, State);
+                    Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, Player.Position, new Quaternion(), AssetID, State);
                     Container = Transform.GetComponent<InteractableStorage>();
                     SaveState();
                     ContainerVersion = BarricadeManager.SAVEDATA_VERSION;
@@ -88,7 +88,7 @@ namespace VirtualStorage
                         return false;
                     }
                 }
-                Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, false, Player.Position, new Quaternion(), AssetID, State);
+                Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, Player.Position, new Quaternion(), AssetID, State);
                 Container = Transform.GetComponent<InteractableStorage>();
                 return true;
             }
