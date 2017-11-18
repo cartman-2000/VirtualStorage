@@ -2,6 +2,7 @@
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using System;
+using System.Reflection;
 using UnityEngine;
 
 using Logger = Rocket.Core.Logging.Logger;
@@ -98,6 +99,14 @@ namespace VirtualStorage
         {
             if (Container == null)
                 return;
+            if (Player.Inventory.isStorageTrunk || Player.Inventory.isStoring)
+            {
+                Player.Inventory.isStorageTrunk = false;
+                Player.Inventory.isStoring = false;
+                Player.Inventory.storage = null;
+                Player.Inventory.updateItems(PlayerInventory.STORAGE, null);
+                Player.Inventory.sendStorage();
+            }
             Transform.localPosition = Player.Position;
             Container.opener = Player.Player;
             Player.Inventory.isStoring = true;
@@ -148,14 +157,18 @@ namespace VirtualStorage
         {
             if (Container.opener != null)
             {
-                if (Container.opener.inventory.isStoring)
-                {
-                    Container.opener.inventory.isStoring = false;
-                    Container.opener.inventory.storage = null;
-                    Container.opener.inventory.updateItems(PlayerInventory.STORAGE, null);
-                    Container.opener.inventory.sendStorage();
-                }
+                Container.opener.inventory.isStorageTrunk = false;
+                Container.opener.inventory.isStoring = false;
+                Container.opener.inventory.storage = null;
+                Container.opener.inventory.updateItems(PlayerInventory.STORAGE, null);
+                Container.opener.inventory.sendStorage();
                 Container.opener = null;
+            }
+            
+            if (Player.IsInVehicle && Player.CurrentVehicle.checkDriver(Player.CSteamID))
+            {
+                // Reopen the trunk in the car, if you're currently in the drivers seat after you close the virtual storage.
+                Player.CurrentVehicle.GetType().InvokeMember("grantTrunkAccess", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod, null, Player.CurrentVehicle, new object[] { Player.Player });
             }
             WasOpen = false;
         }

@@ -18,12 +18,17 @@ namespace VirtualStorage
         public static VirtualStorage Instance;
         public static DatabaseManager Database;
         public static Dictionary<CSteamID, ContainerManager> Containers = new Dictionary<CSteamID, ContainerManager>();
+        internal static bool InitialLoadPassed = false;
 
         protected override void Load()
         {
             Instance = this;
             Database = new DatabaseManager();
             U.Events.OnPlayerDisconnected += Events_OnPlayerDisconnected;
+            // Load Containers after the level loads, in initial start, to give workshop mods a chance to load into the server after the plugin loads.
+            Level.onPostLevelLoaded += Database.SetupContainers;
+            if (InitialLoadPassed)
+                Database.SetupContainers(0);
             Instance.Configuration.Instance.LoadDefaults();
             if (Instance.Configuration.Instance.KeepaliveInterval <= 0)
             {

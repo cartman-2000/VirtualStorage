@@ -28,6 +28,10 @@ namespace VirtualStorage
             Table = VirtualStorage.Instance.Configuration.Instance.DatabaseTableName;
             TableData = Table + "_data";
             CheckSchema();
+        }
+
+        internal void SetupContainers(int Int)
+        {
             foreach (Container row in VirtualStorage.Instance.Configuration.Instance.Containers)
             {
                 ItemBarricadeAsset ItemAsset = ((ItemBarricadeAsset)Assets.find(EAssetType.ITEM, row.AssetID));
@@ -43,6 +47,7 @@ namespace VirtualStorage
                 }
                 ConfigContainers.Add(row.AssetID, row);
             }
+            VirtualStorage.InitialLoadPassed = true;
         }
 
         internal void Unload()

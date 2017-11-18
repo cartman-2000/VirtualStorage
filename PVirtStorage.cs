@@ -6,13 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using UnityEngine;
 
 namespace VirtualStorage
 {
     public class PVirtStorage : UnturnedPlayerComponent
     {
         internal ContainerManager cData;
+        private bool isPrimarySeat = false;
 
         protected override void Load()
         {
@@ -24,7 +24,8 @@ namespace VirtualStorage
             {
                 if (cData.WasOpen)
                 {
-                    if (!Player.Inventory.isStoring)
+                    // Force close virtual container if switching from passengers to drivers seats.
+                    if (!Player.Inventory.isStoring || (Player.IsInVehicle && !isPrimarySeat && Player.CurrentVehicle.checkDriver(Player.CSteamID)))
                     {
                         cData.Close();
                         VirtualStorage.Database.SaveContainerToDB(cData);
@@ -32,6 +33,8 @@ namespace VirtualStorage
                     }
                 }
             }
+            if (Player.IsInVehicle)
+                isPrimarySeat = Player.CurrentVehicle.checkDriver(Player.CSteamID);
         }
     }
 }
