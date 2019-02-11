@@ -11,11 +11,10 @@ namespace VirtualStorage
 {
     public class ContainerManager
     {
-        private static readonly byte CurrentPluginContainerVersion = 11;
+        private static readonly byte CurrentPluginContainerVersion = 14;
 
         private Transform Transform { get; set; }
         private InteractableStorage Container { get; set; }
-        private ItemBarricadeAsset ItemAsset { get; set; }
         internal UnturnedPlayer Player { get; set; }
 
         internal byte[] State { get; set; }
@@ -71,8 +70,8 @@ namespace VirtualStorage
 
         internal bool SetContainer(ushort assetID, byte[] state, UnturnedPlayer player, string containerName, byte itemCount, byte containerVersion)
         {
-            ItemAsset = ((ItemBarricadeAsset)Assets.find(EAssetType.ITEM, assetID));
-            if (ItemAsset == null || ItemAsset.build != EBuild.STORAGE)
+            Asset asset = Assets.find(EAssetType.ITEM, assetID);
+            if (asset == null || (asset is ItemBarricadeAsset && ((ItemBarricadeAsset)asset).build != EBuild.STORAGE))
                 return false;
             else
             {
@@ -89,7 +88,7 @@ namespace VirtualStorage
                         return false;
                     }
                 }
-                Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, Player.Position, new Quaternion(), AssetID, State);
+                Transform = BarricadeTool.getBarricade(null , 100, Player.Position, new Quaternion(), AssetID, State);
                 Container = Transform.GetComponent<InteractableStorage>();
                 return true;
             }
@@ -107,7 +106,8 @@ namespace VirtualStorage
                 Player.Inventory.updateItems(PlayerInventory.STORAGE, null);
                 Player.Inventory.sendStorage();
             }
-            Transform.localPosition = Player.Position;
+            Container.transform.position = Player.IsInVehicle ? Player.CurrentVehicle.transform.position : Player.Position;
+            Container.transform.position += new Vector3(0, -10, 0);
             Container.opener = Player.Player;
             Player.Inventory.isStoring = true;
             WasOpen = true;
@@ -120,34 +120,33 @@ namespace VirtualStorage
 
         internal void SaveState()
         {
-            SteamPacker.openWrite(0);
-            ItemCount = Container.items.getItemCount();
-            SteamPacker.write(Player.CSteamID, Player.SteamGroupID, ItemCount);
-            for (byte i = 0; i < ItemCount; i++)
+            if (Container != null && Container.items != null)
             {
-                ItemJar I = (ItemJar)Container.items.getItem(i);
-                SteamPacker.write(I.x, I.y, I.rot, I.item.id, I.item.amount, I.item.durability, I.item.metadata);
+                SteamPacker.openWrite(0);
+                ItemCount = Container.items.getItemCount();
+                SteamPacker.write(Player.CSteamID, Player.SteamGroupID, ItemCount);
+                for (byte i = 0; i < ItemCount; i++)
+                {
+                    ItemJar I = Container.items.getItem(i);
+                    SteamPacker.write(I.x, I.y, I.rot, I.item.id, I.item.amount, I.item.quality, I.item.state);
+                }
+                if (Container.isDisplay)
+                {
+                    SteamPacker.write(Container.displaySkin, Container.displayMythic, string.IsNullOrEmpty(Container.displayTags) ? string.Empty : Container.displayTags, string.IsNullOrEmpty(Container.displayDynamicProps) ? string.Empty : Container.displayDynamicProps, Container.rot_comp);
+                }
+
+                byte[] tmp = SteamPacker.closeWrite(out int Size);
+                StateSize = Size;
+                State = new byte[StateSize];
+                Array.Copy(tmp, State, StateSize);
             }
-            if (Container.isDisplay)
-            {
-                SteamPacker.write(Container.displaySkin, Container.displayMythic, Container.rot_comp);
-            }
-            int Size = 0;
-            byte[] tmp = SteamPacker.closeWrite(out Size);
-            StateSize = Size;
-            State = new byte[StateSize];
-            Array.Copy(tmp, State, StateSize);
         }
 
         internal void Break()
         {
-            Transform.localPosition = Player.IsInVehicle ? Player.CurrentVehicle.transform.position : Player.Position;
-            for (byte b = 0; b < ItemCount; b += 1)
-            {
-                ItemJar item = Container.items.getItem(b);
-                ItemManager.dropItem(item.item, Transform.localPosition, false, true, true);
-            }
-            Container.items.clear();
+            Container.transform.position = Player.IsInVehicle ? Player.CurrentVehicle.transform.position : Player.Position;
+            Container.ManualOnDestroy();
+            Container.transform.position += new Vector3(0, -10, 0);
             Close();
             Container = null;
             UnturnedChat.Say(Player, VirtualStorage.Instance.Translate("removing_container", ContainerName, ItemCount), Color.cyan);
