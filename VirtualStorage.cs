@@ -58,7 +58,7 @@ namespace VirtualStorage
                         Database.SaveContainerToDB(cData);
                         cData.Close();
                     }
-                    Containers.Remove(player.CSteamID);
+                    Containers.RemoveContainer(player.CSteamID);
                 }
             }
         }

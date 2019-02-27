@@ -11,14 +11,11 @@ namespace VirtualStorage
 {
     public class ContainerManager
     {
-        private static readonly byte CurrentPluginContainerVersion = 14;
-
+        internal InteractableStorage Container { get; set; }
         private Transform Transform { get; set; }
-        private InteractableStorage Container { get; set; }
         internal UnturnedPlayer Player { get; set; }
 
         internal byte[] State { get; set; }
-        internal int StateSize { get; set; }
         internal byte ItemCount { get; set; }
         internal bool WasOpen { get; set; }
         internal string ContainerName { get; set; }
@@ -28,49 +25,18 @@ namespace VirtualStorage
         internal ContainerManager(UnturnedPlayer player)
         {
             State = new byte[] { };
-            StateSize = 0;
             ItemCount = 0;
             Container = null;
             WasOpen = false;
             ContainerName = string.Empty;
-            ContainerVersion = CurrentPluginContainerVersion;
+            ContainerVersion = BarricadeManager.SAVEDATA_VERSION;
             Player = player;
-        }
-
-        private bool UpdateContainer()
-        {
-            // here to perform State updates to the data so it'll load properly. Will also stop containers from loading if the container version isn't less than the CurrentPluginVersion set here, it's a protection measure so that container contents don't get corrupted with potentially mismatched packing and unpacking procedures.
-            if (ContainerVersion < CurrentPluginContainerVersion)
-            {
-                try
-                {
-                    BarricadeManager.version = ContainerVersion;
-                    Logger.Log("run update.");
-                    Transform = BarricadeTool.getBarricade(Player.Player.transform, 100, Player.Position, new Quaternion(), AssetID, State);
-                    Container = Transform.GetComponent<InteractableStorage>();
-                    SaveState();
-                    ContainerVersion = BarricadeManager.SAVEDATA_VERSION;
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogException(ex, "Error updating the container.");
-                    return false;
-                }
-                finally
-                {
-                    BarricadeManager.version = BarricadeManager.SAVEDATA_VERSION;
-                }
-            }
-            else
-            {
-                return false;
-            }
         }
 
         internal bool SetContainer(ushort assetID, byte[] state, UnturnedPlayer player, string containerName, byte itemCount, byte containerVersion)
         {
             Asset asset = Assets.find(EAssetType.ITEM, assetID);
+            bool shouldUpdate = false;
             if (asset == null || (asset is ItemBarricadeAsset && ((ItemBarricadeAsset)asset).build != EBuild.STORAGE))
                 return false;
             else
@@ -81,16 +47,39 @@ namespace VirtualStorage
                 AssetID = assetID;
                 ContainerVersion = containerVersion;
                 Player = player;
-                if (ContainerVersion < BarricadeManager.SAVEDATA_VERSION)
+                try
                 {
-                    if (!UpdateContainer())
+                    // Run update, if the container version is less than the barricade manager version.
+                    if (ContainerVersion < BarricadeManager.SAVEDATA_VERSION)
                     {
-                        return false;
+                        shouldUpdate = true;
+                        BarricadeManager.version = containerVersion;
+                        Logger.Log("Updating container.");
+                    }
+                    Transform = BarricadeTool.getBarricade(null, 100, Vector3.zero, new Quaternion(), AssetID, State);
+                    Container = Transform.GetComponent<InteractableStorage>();
+                    Container.transform.position = Vector3.zero;
+                    Container.onStateRebuilt = new InteractableStorage.RebuiltStateHandler(SaveState);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogException(ex, "Error setting container.");
+                    Container = null;
+                    return false;
+                }
+                finally
+                {
+                    if (shouldUpdate)
+                    {
+                        BarricadeManager.version = BarricadeManager.SAVEDATA_VERSION;
+                        if (Container != null)
+                        {
+                            ContainerVersion = BarricadeManager.SAVEDATA_VERSION;
+                            Container.rebuildState();
+                        }
                     }
                 }
-                Transform = BarricadeTool.getBarricade(null , 100, Player.Position, new Quaternion(), AssetID, State);
-                Container = Transform.GetComponent<InteractableStorage>();
-                return true;
             }
         }
 
@@ -106,39 +95,22 @@ namespace VirtualStorage
                 Player.Inventory.updateItems(PlayerInventory.STORAGE, null);
                 Player.Inventory.sendStorage();
             }
-            Container.transform.position = Player.IsInVehicle ? Player.CurrentVehicle.transform.position : Player.Position;
-            Container.transform.position += new Vector3(0, -10, 0);
             Container.opener = Player.Player;
             Player.Inventory.isStoring = true;
             WasOpen = true;
-            Container.items.onStateUpdated = new StateUpdated(SaveState);
             Player.Inventory.storage = Container;
             Player.Inventory.updateItems(PlayerInventory.STORAGE, Container.items);
             Player.Inventory.sendStorage();
             UnturnedChat.Say(Player, VirtualStorage.Instance.Translate("opening_container", ContainerName), Color.cyan);
         }
 
-        internal void SaveState()
+        private void SaveState(InteractableStorage storage, byte[] state, int size)
         {
-            if (Container != null && Container.items != null)
+            if (storage.transform == Container.transform)
             {
-                SteamPacker.openWrite(0);
                 ItemCount = Container.items.getItemCount();
-                SteamPacker.write(Player.CSteamID, Player.SteamGroupID, ItemCount);
-                for (byte i = 0; i < ItemCount; i++)
-                {
-                    ItemJar I = Container.items.getItem(i);
-                    SteamPacker.write(I.x, I.y, I.rot, I.item.id, I.item.amount, I.item.quality, I.item.state);
-                }
-                if (Container.isDisplay)
-                {
-                    SteamPacker.write(Container.displaySkin, Container.displayMythic, string.IsNullOrEmpty(Container.displayTags) ? string.Empty : Container.displayTags, string.IsNullOrEmpty(Container.displayDynamicProps) ? string.Empty : Container.displayDynamicProps, Container.rot_comp);
-                }
-
-                byte[] tmp = SteamPacker.closeWrite(out int Size);
-                StateSize = Size;
-                State = new byte[StateSize];
-                Array.Copy(tmp, State, StateSize);
+                State = new byte[size];
+                Array.Copy(state, State, size);
             }
         }
 
@@ -146,7 +118,13 @@ namespace VirtualStorage
         {
             Container.transform.position = Player.IsInVehicle ? Player.CurrentVehicle.transform.position : Player.Position;
             Container.ManualOnDestroy();
-            Container.transform.position += new Vector3(0, -10, 0);
+            if (VirtualStorage.Containers.ContainsKey(Player.CSteamID) && VirtualStorage.Containers[Player.CSteamID].ContainerName == ContainerName)
+                VirtualStorage.Containers.RemoveContainer(Player.CSteamID);
+            else
+            {
+                Container.transform.position = Vector3.zero;
+                UnityEngine.Object.Destroy(Container.transform.gameObject);
+            }
             Close();
             Container = null;
             UnturnedChat.Say(Player, VirtualStorage.Instance.Translate("removing_container", ContainerName, ItemCount), Color.cyan);
@@ -167,7 +145,7 @@ namespace VirtualStorage
             if (Player.IsInVehicle && Player.CurrentVehicle.checkDriver(Player.CSteamID))
             {
                 // Reopen the trunk in the car, if you're currently in the drivers seat after you close the virtual storage.
-                Player.CurrentVehicle.GetType().InvokeMember("grantTrunkAccess", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod, null, Player.CurrentVehicle, new object[] { Player.Player });
+                Player.CurrentVehicle.grantTrunkAccess(Player.Player);
             }
             WasOpen = false;
         }
