@@ -56,9 +56,8 @@ namespace VirtualStorage
                     {
                         // Player must have disconnected when the inventory was open, save the container.
                         Database.SaveContainerToDB(cData);
-                        cData.Close();
                     }
-                    Containers.RemoveContainer(player.CSteamID);
+                    cData.Cleanup();
                 }
             }
         }

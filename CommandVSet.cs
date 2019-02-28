@@ -87,8 +87,7 @@ namespace VirtualStorage
                 if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
                 {
                     // Close the container when setting a different one.
-                    VirtualStorage.Containers[player.CSteamID].Close();
-                    VirtualStorage.Containers.Remove(player.CSteamID);
+                    VirtualStorage.Containers[player.CSteamID].Cleanup();
                 }
                 VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, container[2].ToString());
                 UnturnedChat.Say(caller, VirtualStorage.Instance.Translate("container_set", container[2].ToString()), Color.cyan);

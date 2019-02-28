@@ -21,19 +21,5 @@ namespace VirtualStorage
             if (string.IsNullOrEmpty(value)) return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
         }
-
-        public static bool RemoveContainer(this Dictionary<CSteamID, ContainerManager> container, CSteamID steamID)
-        {
-            if (container.ContainsKey(steamID))
-            {
-                ContainerManager c = container[steamID];
-                c.Container.items.clear();
-                c.Container.transform.position = Vector3.zero;
-                UnityEngine.Object.Destroy(c.Container.transform.gameObject);
-                container.Remove(steamID);
-                return true;
-            }
-            return false;
-        }
     }
 }

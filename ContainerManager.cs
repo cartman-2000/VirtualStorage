@@ -118,16 +118,24 @@ namespace VirtualStorage
         {
             Container.transform.position = Player.IsInVehicle ? Player.CurrentVehicle.transform.position : Player.Position;
             Container.ManualOnDestroy();
-            if (VirtualStorage.Containers.ContainsKey(Player.CSteamID) && VirtualStorage.Containers[Player.CSteamID].ContainerName == ContainerName)
-                VirtualStorage.Containers.RemoveContainer(Player.CSteamID);
-            else
-            {
-                Container.transform.position = Vector3.zero;
-                UnityEngine.Object.Destroy(Container.transform.gameObject);
-            }
-            Close();
-            Container = null;
+            Cleanup();
             UnturnedChat.Say(Player, VirtualStorage.Instance.Translate("removing_container", ContainerName, ItemCount), Color.cyan);
+        }
+
+        // Execute code to cleanup the ContainerManager object, and the attatched Container.
+        internal void Cleanup()
+        {
+            if (Container != null)
+            {
+                Close();
+                Container.transform.position = Vector3.zero;
+                if (Container.items != null && Container.items.getItemCount() > 0)
+                    Container.items.clear();
+                UnityEngine.Object.Destroy(Container.transform.gameObject);
+                Container = null;
+            }
+            if (VirtualStorage.Containers.ContainsKey(Player.CSteamID) && VirtualStorage.Containers[Player.CSteamID].ContainerName == ContainerName)
+                VirtualStorage.Containers.Remove(Player.CSteamID);
         }
 
         internal void Close()

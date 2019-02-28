@@ -94,12 +94,11 @@ namespace VirtualStorage
             string defaultContainer = VirtualStorage.Database.GetDefaultContainer(player.CSteamID);
             if (!string.IsNullOrEmpty(defaultContainer) && defaultContainer.ToLower() == cName.ToLower())
             {
+                // Close and remove default container from player in preparation to transfer container.
                 VirtualStorage.Database.SaveDefaultContainer(player.CSteamID, string.Empty);
                 if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
                 {
-                    // Close and remove container from player in preparation to transfer container.
-                    VirtualStorage.Containers[player.CSteamID].Close();
-                    VirtualStorage.Containers.Remove(player.CSteamID);
+                    VirtualStorage.Containers[player.CSteamID].Cleanup();
                 }
             }
             VirtualStorage.Database.TransferContainer(player.CSteamID, targetPlayer.CSteamID, cName);

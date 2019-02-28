@@ -66,7 +66,7 @@ namespace VirtualStorage
             else
             {
                 if (VirtualStorage.Containers.ContainsKey(player.CSteamID))
-                    VirtualStorage.Containers.RemoveContainer(player.CSteamID);
+                    VirtualStorage.Containers[player.CSteamID].Cleanup();
                 cData = new ContainerManager(player);
                 if (!cData.SetContainer((ushort)cInfo[0], (byte[])cInfo[1], player, (string)cInfo[2], (byte)cInfo[3], (byte)cInfo[4]))
                 {
